@@ -1,183 +1,82 @@
-<h1 align="center">YOLO</h1>
-<p align="center">
-  Agent-native AI assistant for Obsidian — 对话、写作、知识库、编排，一站式搞定。
-</p>
+# YOLO Completion Only
 
-<p align="center"><a href="https://github.com/Lapis0x0/obsidian-yolo/commits/main">
-    <img src="https://img.shields.io/github/last-commit/Lapis0x0/obsidian-yolo/main?style=flat-square&color=6c5ce7" alt="Last Commit">
-  </a>
-  <a href="https://github.com/Lapis0x0/obsidian-yolo/stargazers">
-    <img src="https://img.shields.io/github/stars/Lapis0x0/obsidian-yolo?style=flat-square&color=6c5ce7" alt="GitHub Stars">
-  </a>
-  <a href="https://github.com/Lapis0x0/obsidian-yolo/releases/latest">
-    <img src="https://img.shields.io/github/v/release/Lapis0x0/obsidian-yolo?style=flat-square&color=00b894" alt="Latest Release">
-  </a>
-  <a href="https://github.com/Lapis0x0/obsidian-yolo/releases">
-    <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FLapis0x0%2Fobsidian-yolo%2Fdownload-metrics%2Fbadge.json&style=flat-square" alt="Downloads">
-  </a>
-  <a href="https://github.com/Lapis0x0/obsidian-yolo/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/Lapis0x0/obsidian-yolo?style=flat-square&color=636e72" alt="License">
-  </a>
-</p>
+[English](README.md)
 
-<p align="center">
-  <a href="./README.md">English</a> | <b>简体中文</b> | <a href="./README_it.md">Italiano</a> | <a href="./README_es.md">Español</a>
-</p>
+基于 [YOLO](https://github.com/Lapis0x0/obsidian-yolo) 的轻量纯补全分支：写作停顿后显示灰色建议，按 **Tab** 接受。
 
-<p align="center">
-  QQ 群: <code>793057867</code> | <a href="./assets/wechat-group.png">微信群</a>
-</p>
+保留行内补全与必要设置，移除了聊天、Agent、MCP、终端工具、RAG、数据库、学习模块、白板和插件自动更新。
 
-## Sponsors
+## 功能
 
-<table>
-<tr>
-<td width="200" align="center" valign="middle">
-  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=obsidian-yolo">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://www.atlascloud.ai/logo-white.svg">
-      <img src="https://www.atlascloud.ai/logo.svg" alt="Atlas Cloud" width="163">
-    </picture>
-  </a>
-</td>
-<td valign="middle">
-  <b><a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=obsidian-yolo">Atlas Cloud</a></b> 为开发者提供覆盖语言、图像与视频生成的统一 AI API。一次接入即可使用横跨多种模态的 300+ 精选模型，无需分别维护不同模型供应商的集成。从 LLM Agent 到图像和视频生成，Atlas Cloud 让模型探索、效果比较与生产接入更加简单。
-  <br><br>
-  <a href="https://www.atlascloud.ai/?utm_source=github&utm_medium=link&utm_campaign=obsidian-yolo"><b>探索 Atlas Cloud →</b></a>
-  &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://www.atlascloud.ai/console/coding-plan"><b>查看 Coding Plan →</b></a>
-</td>
-</tr>
-</table>
+- 原生 Mercury Edit 2 FIM 流式补全，以及 OpenAI 兼容的聊天式补全；Mercury 聊天请求使用 instant reasoning。
+- 合并最新输入，在最小请求间隔结束后处理，不再因冷却期而丢掉最后一次停顿。
+- 当输入与灰字逐字相符时沿用剩余建议，包括仍在流式生成的建议。
+- 有容量和过期限制的内存缓存，区分编辑器、模型、提示词与精确上下文，不合并大小写或空白。
+- 可选的本文件结构上下文：文件名、章节、附近命题、证明开头和本地宏／记号。不扫描整库，不建立向量索引。
+- 目录级写作约定，使用匹配最具体的一条；不为此读取其他文件。
+- LaTeX、代码按原样插入，尊重右侧已经存在的数学闭合符号。
+- 原生 CodeMirror 接口，同时保留 LaTeX Live 使用的既有 YOLO 接口。
+- 组合输入期间不触发请求，支持独立窗口及其他补全菜单的避让。
 
-## 最近更新
+## 安装
 
-- **`1.6`**：新增 CLI 对话，桌面端可在同一个对话界面里直接驱动本机已登录的 Claude Code 或 Codex
+插件 ID 仍为 **`yolo`**，以保留已有编辑器接入。同一 vault 中，它会替代原版 YOLO，两者不能并行启用。
 
-- **`1.6`**：推出全新的学习模式，可根据学习主题、目标和参考资料生成个性化学习项目，包括结构化大纲、知识点、闪卡与交互式知识地图；并通过 FSRS 间隔复习和 Anki 卡包导入，将知识整理、学习与长期复习串成完整工作流
+1. 先在测试 vault 使用，或备份原来的 `.obsidian/plugins/yolo/` 文件夹。
+2. 从成功的 [CI 构建附件](https://github.com/qiulinfan/obsidian-yolo-completion-only/actions) 获取 `main.js`、`styles.css`、`manifest.json`，也可以自行构建。
+3. 将三个文件放入 `<vault>/.obsidian/plugins/yolo/`，在社区插件中启用 **YOLO Completion Only**。
+4. 在设置页填写 API 信息，点击“测试连接”。这个按钮只发送一句合成测试文本。
 
-- **`1.5`**：引入全新 Agent 运行时，让 AI 从「问答」升级为「协作」，完整支持工具调用、MCP、Skills、桌面 Bash、子 Agent 与联网搜索；同时带来长会话上下文与记忆、混合检索 RAG、焦点同步与 PDF 感知，以及多窗口对话与后台 Agent
+原有 YOLO 的供应商、模型和补全设置会被读取；其他设置与 vault 内 `YOLO/` 数据保留供回退，但相应服务不会启动。已有自定义延迟不会被新默认值覆盖，可按下面的参数自行调整。
 
-## Highlights
+## 配置
 
-| 完整的 Agent 体验｜在 OB 内使用 Codex/Claude Code | 让 Vault 里的知识真正被你掌握 |
-|:-:|:-:|
-| ![Agent Tools](./assets/agenttools.gif) | ![Learning Mode](./assets/learning-mode.gif) |
-| 不止回答问题。YOLO 能理解并操作你的 Vault，调用工具与 MCP，并通过 Skills 按你的方式完成任务。桌面端还能一键切到你已登录的 Claude Code 或 Codex，让它们直接在 Vault 里工作。 | 把主题与资料转化为专属学习内容，再用闪卡与 FSRS 持续复习，让知识从被收藏走向真正掌握。 |
+Mercury Edit 2 使用：
 
-## Features
+| 设置 | 值 |
+| --- | --- |
+| 接口类型 | Mercury Edit 2（FIM） |
+| API 基础地址 | `https://api.inceptionlabs.ai/v1` |
+| 模型 ID | `mercury-edit-2` |
+| API 密钥 | 你的 Inception API key |
 
-除了上述核心能力，YOLO 还提供：
+Mercury 2.5 选择聊天式接口，模型填 `mercury-2.5`，基础地址相同。其他模型需要支持 OpenAI 兼容的 Chat Completions 接口。基础地址不包含 `/chat/completions` 或 `/fim/completions`。
 
-| 特性 | 说明 |
-|------|------|
-| 🖥️ CLI Agent（桌面端） | 复用本机已登录的 Claude Code / Codex，直接在 Obsidian 里和 CLI Agent 对话 |
-| 🔌 外部 Agent 支持 | 通过 MCP，让 Hermes、OpenClaw 等外部 Agent 使用 YOLO 的 Vault 搜索，或派遣已配置的 YOLO Agent 执行任务 |
-| ⚡ Quick Ask 与 Smart Space | 无需离开编辑器即可提问、修改和续写内容 |
-| 🔎 Vault RAG | 检索整个 Vault，让回答建立在你自己的笔记之上 |
-| 🪟 多窗口对话 | 在独立对话窗口中并行处理不同任务与上下文 |
-| 🧠 记忆系统 | 让 YOLO 记住你的偏好、习惯与长期上下文，让连续对话更稳定、更懂你 |
-| 🪡 Cursor Chat | 一键添加上下文，触手可得的对话体验 |
-| ⌨️ Tab 补全 | 实时 AI 智能补全，让写作更加流畅自然 |
-| 🎛️ 多模型支持 | OpenAI、Claude、Gemini、DeepSeek 等主流模型，自由切换 |
-| 🌍 i18n 国际化 | 原生多语言支持 |
+新配置默认使用 **180ms** 停顿等待、词尾／标点边界 **120ms**、请求最小间隔 **150ms**、最多 **32 个输出 token**。这些是可调整的默认值，不是网络延迟保证。
 
+请求发送光标附近的有限文本。开启结构上下文后，还会附加本文件标题、附近命题和记号的有限片段；短笔记可能整个落在这个范围内。API key 保存在本地插件设置，安装包不含凭据。
 
-## Quick Start
+## 操作
 
-1. 打开 Obsidian 设置 → 社区插件 → 浏览 → 搜索 **"YOLO"**
-2. 安装并启用
-3. 在插件设置中配置你的 API Key，或者使用你自己的 ChatGPT OAuth / Gemini OAuth：
-   - [OpenAI](https://platform.openai.com/api-keys) / [Anthropic](https://console.anthropic.com/settings/keys) / [Gemini](https://aistudio.google.com/apikey) / [Groq](https://console.groq.com/keys)
-4. 打开侧边栏，开始对话——或者在编辑器里输入 `@` 试试 Quick Ask
+| 操作 | 按键或命令 |
+| --- | --- |
+| 接受灰字 | Tab |
+| 取消建议及其请求 | Esc / Shift+Tab |
+| 切换多个聊天候选 | 上下方向键 |
+| 手动请求 | 命令面板 → 触发补全 |
+| 开关自动请求 | 命令面板 → 切换自动补全 |
 
+没有可用建议时，Tab 保留编辑器原有行为。移动光标、建立选区或修改其他文本会使旧回复失效。沿着建议继续输入时，只扣除已输入部分。Mercury FIM 始终生成一个候选。
 
-## Installation
+## LaTeX 与其他编辑器
 
-### 社区插件商店（推荐）
+LaTeX Live 的源码和可视编辑模式均可使用已有的 YOLO 补全接入，需要在其设置中开启。较旧的编辑器版本可能显示其原版 YOLO 版本白名单提示；本分支保留了桥接接口，并有单独的实际编辑器验证。
 
-见上方 Quick Start。
+任何已有 CodeMirror 6 文本编辑器都可以使用原生 `completionApi`，不限制文件扩展名；插件不会替未知格式创建编辑器，见 [原生编辑器接口](NATIVE-EDITORS.md)。
 
-### 手动安装
+上下文提取是有边界的结构分析，不是完整的 TeX 解析器，也不是数学证明检查器；不会追踪外部 `\input` 文件或遍历整个库。建议仍需自己检查。目前有桌面 Obsidian、LaTeX Live、独立窗口和输入事件验证，尚未验证手机端运行。
 
-1. 前往 [Releases](https://github.com/Lapis0x0/obsidian-yolo/releases) 下载最新版本的 `main.js`、`manifest.json`、`styles.css`
-2. 在 Vault 插件目录下创建文件夹：`<vault>/.obsidian/plugins/obsidian-yolo/`
-3. 将文件复制到该文件夹，然后在 Obsidian 设置中启用插件
+## 构建与来源
 
-> [!WARNING]
-> YOLO 无法与 [Smart Composer](https://github.com/glowingjade/obsidian-smart-composer) 共存，请在使用前禁用或卸载 Smart Composer。
+Node.js 20+：
 
-## Roadmap
+```sh
+npm ci
+npm test
+npm run lint:check
+npm run build
+```
 
-- [x] 更好，更强的 Vault AI 搜索
-- [x] 后台 Agent（长程任务自动执行）
-- [x] 多 Agent 协同编排（通过 subagent 实现）
-- [x] 学习模式 —— 一个专用的学习视图
-- [ ] 批注模式 —— 对笔记进行实时的 AI 评注与建议
-- [ ] 内置助手 —— 右下角常驻，统管配置与 agent，支持自动压缩与定时任务
-- [ ] 更好的 AI 白板
-- [ ] 语音输入与会议纪要
+Obsidian 和 CodeMirror 由宿主提供，产物不打包模型 SDK 等 runtime npm 依赖。开发说明在 [AGENTS.md](AGENTS.md)。
 
-
-## 反馈与 Issue
-
-遇到 bug、有困惑或新想法,欢迎开 issue:
-
-🐛 [报告 bug](https://github.com/Lapis0x0/obsidian-yolo/issues/new?template=bug_report_zh.yml) · ✨ [提出想法](https://github.com/Lapis0x0/obsidian-yolo/issues/new?template=feature_request_zh.yml)
-
-这样的反馈最有帮助:
-
-- 带清晰复现步骤的 bug(Obsidian 版本、操作系统、插件版本、操作过程、实际现象)
-- "我做了 X 结果是 Y" 类问题——交互细节、文案混乱、文档过时、翻译错漏
-- 有具体使用场景的功能想法("我在做 A 时希望能 B,因为 C")
-
-提交前请先搜一下已有 issue,避免重复。
-
-
-## Contributing
-
-欢迎各种形式的贡献——Bug 报告、文档改进、功能增强都可以。
-
-**重大功能请先开 issue 讨论可行性和实现方案。**
-
-详细规则请看 [CONTRIBUTING_zh-CN.md](./CONTRIBUTING_zh-CN.md)：什么样的贡献会被欢迎、AI 辅助 PR 的要求、PR 体量参考、开发环境搭建。
-
-
-## Acknowledgments
-
-感谢 [Smart Composer](https://github.com/glowingjade/obsidian-smart-composer) 团队的原始工作，没有他们就没有 YOLO。
-
-特别感谢 [Kilo Code](https://kilo.ai) 的赞助支持。Kilo 是一个开源 AI 编程助手平台，支持 500+ AI 模型，帮助开发者更快地构建与迭代。
-
-<p align="center">
-  <a href="https://kilo.ai" target="_blank">
-    <img src="https://img.shields.io/badge/Sponsored_by-Kilo_Code-FF6B6B?style=for-the-badge" alt="Sponsored by Kilo Code" height="30">
-  </a>
-</p>
-
-
-## Support
-
-如果觉得 YOLO 有价值，欢迎支持项目发展：
-
-<p align="center">
-  <a href="https://afdian.com/a/lapis0x0" target="_blank">
-    <img src="https://img.shields.io/badge/爱发电-支持开发者-fd6c9e?style=for-the-badge" alt="爱发电">
-  </a>
-  &nbsp;
-  <a href="https://github.com/Lapis0x0/obsidian-yolo/blob/main/donation-qr.jpg" target="_blank">
-    <img src="https://img.shields.io/badge/微信/支付宝-赞赏码-00D924?style=for-the-badge" alt="微信/支付宝赞赏码">
-  </a>
-</p>
-
-开发日志会定期更新在[博客](https://www.lapis.cafe)上。
-
-
-## License
-
-[MIT License](LICENSE)
-
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Lapis0x0/obsidian-yolo&type=Date)](https://star-history.com/#Lapis0x0/obsidian-yolo&Date)
+本分支源于 `Lapis0x0/obsidian-yolo` 的 `4d1e2d8e2318e065c063ff70a2e6b7ed00523f55`，保留上游编辑器实现与 MIT 署名。它是 [qiulinfan/obsidian-yolo-completion-only](https://github.com/qiulinfan/obsidian-yolo-completion-only) 的独立精简分支，不是上游 YOLO 发布版。许可证见 [LICENSE](LICENSE)。

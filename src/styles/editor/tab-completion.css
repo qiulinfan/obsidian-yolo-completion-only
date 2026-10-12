@@ -75,10 +75,8 @@
   background-color: var(--text-muted);
   opacity: 0.22;
   transition:
-    background-color 120ms ease,
     opacity 120ms ease,
-    transform 120ms ease,
-    width 140ms ease;
+    transform 120ms ease;
 }
 
 .yolo-tab-completion-status__dot:is(.is-generating, .is-pending) {
@@ -132,5 +130,13 @@
   .yolo-tab-completion-status__dot:is(.is-generating, .is-pending) {
     opacity: 0.42;
     transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .yolo-tab-loading-dots__dot,
+  .yolo-tab-completion-status__dot {
+    animation: none !important;
+    transition: none !important;
   }
 }

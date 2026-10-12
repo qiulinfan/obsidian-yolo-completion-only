@@ -1,9 +1,9 @@
 {
   "id": "yolo",
-  "name": "YOLO",
-  "version": "1.6.5.4",
+  "name": "YOLO Completion Only",
+  "version": "1.0.0",
   "minAppVersion": "1.8.7",
-  "description": "Agent-native AI assistant — chat, write, search, orchestrate, all in one.",
+  "description": "Lightweight inline completion with native Mercury FIM, context-aware suggestions and editor integrations.",
   "author": "Lapix0x0",
   "authorUrl": "https://github.com/Lapis0x0",
   "fundingUrl": "https://afdian.com/a/lapis0x0",

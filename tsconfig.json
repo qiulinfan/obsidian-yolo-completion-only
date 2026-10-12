@@ -1,26 +1,12 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@electric-sql/pglite/worker": [
-        "./node_modules/@electric-sql/pglite/dist/worker/index.d.ts"
-      ]
-    },
-    "inlineSourceMap": true,
-    "inlineSources": true,
+    "target": "ES2022",
     "module": "ESNext",
-    "target": "ES6",
-    "allowJs": true,
-    "noImplicitAny": true,
     "moduleResolution": "bundler",
-    "importHelpers": true,
-    "isolatedModules": true,
-    "strictNullChecks": true,
-    "lib": ["DOM", "ES5", "ES6", "ES7"],
-    "jsx": "react-jsx",
-    "allowSyntheticDefaultImports": true,
+    "lib": ["DOM", "ES2022"],
+    "strict": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "noEmit": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "drizzle.config.ts", "__mocks__"]
+  "include": ["src/**/*.ts"]
 }

@@ -1,130 +1,33 @@
-name: Bug 报告（中文）
-description: 反馈一个 Bug，帮助我们改进
+name: 补全问题
+description: 报告可复现的补全问题。
 title: '[Bug]: '
 labels: ['bug']
 body:
-  - type: markdown
-    attributes:
-      value: |
-        感谢你抽时间填写 Bug 报告！有两件事对解决问题帮助最大：
-
-        - **复现步骤最重要。** 能复现的 Bug 通常一天内就能修复；无法复现的往往只能搁置。
-        - **提交后请留意回复**（GitHub 通知 / 邮箱）。我们一般会在一天内响应：信息足够就直接处理，不够就会在 issue 下追问——追问一直没有回音的话，问题就无法推进，最终可能被关闭。
-
   - type: textarea
-    id: bug-description
-    attributes:
-      label: 问题描述
-      description: 发生了什么？你期望的结果是什么？
-      placeholder: 请清晰简洁地描述这个 Bug...
-    validations:
-      required: true
-
-  - type: textarea
-    id: reproduction
+    id: steps
     attributes:
       label: 复现步骤
-      description: |
-        我们如何复现这个问题？请从一个我们能还原的状态开始，一步步描述（在哪个界面——Chat / Agent / 快速提问，用的什么模型或供应商，点了什么、输入了什么）。
-        这是整个报告里最关键的一栏："有时候会坏"这类描述我们无从下手。
-      placeholder: |
-        1. 进入 '...'
-        2. 点击 '....'
-        3. 滚动到 '....'
-        4. 看到错误
+      description: 请说明编辑器、源码／可视模式、模型以及操作步骤；使用合成文本。
     validations:
       required: true
-
-  - type: dropdown
-    id: os
+  - type: textarea
+    id: expected
     attributes:
-      label: 操作系统
-      description: 你使用的是哪个操作系统？
-      options:
-        - Windows
-        - macOS
-        - Linux
-        - Other
+      label: 预期与实际结果
+      description: 描述差异。
     validations:
       required: true
-
-  - type: input
-    id: obsidian-version
+  - type: textarea
+    id: versions
     attributes:
-      label: Obsidian 版本
-      description: 你使用的 Obsidian 版本是？
-      placeholder: 例如 1.4.16
-    validations:
-
-  - type: input
-    id: obsidian-installer-version
-    attributes:
-      label: Obsidian Installer 版本
-      description: 你使用的 Obsidian Installer 版本是？（在「设置 → 通用」中可以看到，位于当前版本号下方的 "installer version"）
-      placeholder: 例如 1.4.16
-    validations:
-
-  - type: input
-    id: plugin-version
-    attributes:
-      label: YOLO 版本
-      description: 你使用的 YOLO 版本是？（在「设置 → 第三方插件」中可以看到）
-      placeholder: 例如 1.0.0
+      label: 版本与平台
+      description: Obsidian、YOLO Completion Only、编辑器插件版本和操作系统。
     validations:
       required: true
-
   - type: textarea
-    id: screenshots
+    id: diagnostics
     attributes:
-      label: 截图
-      description: 如果方便，附上截图能帮助我们理解问题
-      placeholder: 在这里拖入或粘贴图片
-
-  - type: textarea
-    id: llm-debug-trace
-    attributes:
-      label: LLM 调试数据（涉及 AI / 聊天 / 工具调用问题时强烈推荐）
-      description: |
-        如果你的问题涉及 Chat、Agent、工具调用或任何 LLM 响应，
-        提供调试数据比控制台日志要有用得多。
-
-        采集方式：
-        1. 进入「设置 → 其他 → 维护」，开启 **启用 LLM 请求调试**。
-        2. 在 Chat 里复现问题。
-        3. 在出问题的助手消息上，点击信息栏中的 **Debug** 按钮
-           （或在「更多操作 (⋯)」菜单里找到）。
-        4. 在弹出的「LLM 调试数据」对话框中点 **复制** 或 **保存**，然后粘贴到下方。
-
-        隐私提示：API 密钥会自动脱敏，但调试数据 **仍然包含完整的对话内容
-        以及工具的输入与输出**。请在贴出前自行检查并删除任何敏感信息。
-
-        注意：调试数据仅保存在内存中，Obsidian 重启后会清空，
-        因此请务必 **先开启开关再去复现问题**。
-      render: markdown
-      placeholder: 在这里粘贴 LLM 调试数据
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: 控制台日志
-      description: |
-        如果问题与 LLM 无关（例如插件无法加载、索引崩溃、UI 报错、
-        移动端专属问题），或上方的 LLM 调试数据无法获取，请提供控制台日志。
-
-        获取方式：
-        1. 打开 Obsidian 开发者工具：
-           - Windows / Linux：按 Ctrl + Shift + I
-           - macOS：按 Cmd + Option + I
-           - 或在菜单中选择 View > Toggle Developer Tools
-        2. 切到 "Console" 标签页
-        3. 找到红色的错误信息或警告
-        4. 复制并粘贴到这里
-      render: shell
-      placeholder: 在这里粘贴日志
-
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: 其他补充
-      description: 还有什么你认为有帮助的信息？
-      placeholder: 任何你觉得相关的细节...
+      label: 可选诊断
+      description: 仅附相关错误；不要粘贴 API 密钥、data.json 或私人笔记。
+    validations:
+      required: false

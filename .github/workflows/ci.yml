@@ -1,25 +1,27 @@
 name: CI
-
 on:
+  push:
   pull_request:
-    branches: [main]
-
+permissions:
+  contents: read
 jobs:
   check:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - run: npm ci
-      - name: Type check
-        run: npm run type:check
-      - name: Circular dependency ratchet
-        run: npm run deps:check
-      - name: Lint check
-        run: npm run lint:check
-      - name: Test
-        run: npm test
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run lint:check
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: obsidian-yolo-completion-only
+          path: |
+            main.js
+            styles.css
+            manifest.json
+            LICENSE

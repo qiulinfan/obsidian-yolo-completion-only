@@ -1,85 +1,79 @@
-# Repository Guidelines
+# YOLO Completion Only
 
-YOLO is an Obsidian plugin for AI chat, agent workflows, RAG, writing assistance, and independently shipped product modules such as FSRS-based Learning.
+This fork retains inline writing completion only. Its source baseline is
+`Lapis0x0/obsidian-yolo` commit `4d1e2d8e2318e065c063ff70a2e6b7ed00523f55`.
+Keep the original MIT license and upstream attribution. The owner requested the short README text; preserve it unless asked to change it.
 
-## Commands
+## Scope and structure
 
-- `npm run dev` - Build first-party modules, then watch the host app, host styles, and dev-vault artifacts
-- `npm run build` - Production build with host and module type checking
-- `npm run type:check` / `npm run module:typecheck` - Type-check the host or first-party modules
-- `npm run module:build` - Rebuild first-party module artifacts and the bundled module catalog
-- `npm run lint:check` / `npm run lint:fix` - Check or fix Prettier and ESLint
-- `npm test` - Run the full Jest suite; use `npx jest <test-file> --runInBand` for serial debugging
-- `npm run styles:build` - Regenerate the host `styles.css` from `src/styles/**`
-- `npx drizzle-kit generate --name <name>` then `npm run migrate:compile` - Generate and compile database migrations
+- `src/main.ts`: completion-only lifecycle, four completion commands, and native settings.
+- `src/features/editor/`: retained YOLO completion controller, CodeMirror ghost rendering,
+  acceptance, rejection and optional chat candidate switching.
+- `src/completion/`: streaming FIM/chat requests, bounded document context, exact memory cache, formatting and SSE decoding. No model SDK or agent runtime.
+- `src/settings/`: completion settings only. Keep unrelated persisted upstream fields
+  when saving so a rollback does not discard provider, chat or module preferences.
+  Inactive fields are never initialized as services. Existing vault `YOLO/` data is untouched.
+- `src/i18n.ts`: resolve English/Chinese native UI strings at use time.
+- `tests/`: request contracts, stream boundaries, cancellation, stale results, exact
+  acceptance and persistence preservation. Use synthetic data and mocked requests.
 
-## Architecture
+The plugin ID remains `yolo` because LaTeX Live binds to it. Do not install this
+fork alongside upstream in the same vault. Preserve the existing
+`getEditorView`, `getInlineSuggestionController`, `getTabCompletionController`,
+`handleTabCompletionEditorChange` and controller field contracts consumed by
+LaTeX Live. Validate the actual bridge after changing them. This is an existing
+consumer requirement, not a reason to retain chat/agent compatibility code.
 
-- `src/main.ts` owns the host plugin lifecycle. `src/ChatView.tsx` and `src/components/chat-view/` own the main chat surface.
-- `src/core/modules/` owns module discovery, installation, loading, activation, lifecycle, and the versioned Host API. `modules/host-sdk.d.ts` is the module-facing API contract.
-- `modules/<id>/` owns an independently built product module: its UI, domain logic, host adapters, styles, assets, workers, and tests. `modules/learning/` contains the complete Learning product implementation.
-- `src/core/agent/` owns the shared native agent runtime, tool gateway, conversation service, subagents, and background tasks. Quick Ask, Sidebar Chat, and Agent Chat run through `AgentService.run`; permissions come from `resolveChatModeRuntime`.
-- `src/core/ai/single-turn.ts` is the low-latency path for Smart Space and Write Assist. Do not route these features through the agent runtime or introduce another orchestration path.
-- `src/core/llm/`, `auth/`, `rag/`, `mcp/`, and `skills/` own shared model, provider, retrieval, and tool capabilities.
-- `src/features/` contains host-shipped cross-cutting features. `src/database/`, `src/settings/`, and `src/styles/` own host persistence, settings, and global styles.
+## Build and verification
 
-## Module Boundaries
+Use Node 20+ and `npm ci`. The host provides `obsidian`, `@codemirror/state` and
+`@codemirror/view`; leave them external to avoid duplicate editor runtimes.
 
-- Put a large, optional product capability in `modules/` when it can be installed, enabled, and released independently. Keep small or inherently host-integrated capabilities in `src/features/`.
-- A module may depend on the versioned Host API and its declared package dependencies. It must not import `src/core/`, `src/components/`, `YoloPlugin`, or `obsidian` directly.
-- First-party modules follow the same boundary as external modules. Repository co-location does not grant access to host implementation details.
-- Add a capability to the Host API only when it is broadly useful to modules. Keep module-specific policy and behavior inside the owning module.
-- Core must not import module source or bundle module implementation into the host artifact. Communicate only through registration, manifests, and Host API contracts.
-- Treat versioned `entry.js`, module `style.css`, generated manifest metadata (hashes, sizes, and URLs), and `modules/bundled.json` as build outputs. Change source or compatibility declarations, run `npm run module:build`, and commit the regenerated artifacts rather than editing generated metadata.
+- `npm run type:check`
+- `npm test`
+- `npm run lint:check`
+- `npm run build` (type check, completion CSS, production bundle)
 
-## Critical Cross-Cutting Constraints
+The installable artifacts are `main.js`, `styles.css`, and `manifest.json`.
+Test them in an isolated vault before replacing any production installation.
+Verify automatic and manual completion, Tab acceptance, Escape cancellation,
+selection/document/focus invalidation, IME composition, a popout, and the existing
+LaTeX Live integration. Direct API success alone is not editor validation.
 
-### YOLO Managed Paths
+## Boundaries
 
-- Resolve host-managed Vault paths from current settings through `src/core/paths/`; never hardcode `YOLO`. Modules consume current path snapshots through the Host API instead of reproducing host path rules.
-- Long-lived services must read current settings or path snapshots through getters so base-directory changes take effect without restart.
+Do not reintroduce chat, Quick Ask, agents, shell tools, MCP, indexing, embedding
+models, databases, module downloads, background servers, scheduled tasks, or
+self-updaters. Only send bounded cursor context and enabled current-document structural excerpts to the configured API. Folder rules add instructions without opening other files.
+No API credentials, transcripts, screenshots, performance logs or checksum
+inventories in Git; keep them in ignored `build/` or an external test directory.
+Keep personal `.obsidian/`, editor settings and `.DS_Store` ignored.
 
-### Runtime Boundaries
+Use owner-document DOM APIs for widgets in popouts. CodeMirror update callbacks
+must defer effect dispatch until after the update. Preserve native Tab behavior
+when no usable suggestion exists and never accept text for an old document,
+cursor or selection. Generated LaTeX is inserted literally, without Markdown
+escaping. No retries after user cancellation and no logging raw provider errors.
 
-- Never statically import desktop-only dependencies (`node:*`, `proxy-agent`, `shell-env`, local servers, child processes, stream adapters, etc.). Load them with `await import(...)` inside desktop-only branches so mobile can load the host or module.
-- PGlite cannot use its default `node:fs` path in Obsidian. `DatabaseManager.ts` lazily loads its data, WASM, and vector extension and supplies them during initialization; preserve the build shims for `process` and `import.meta.url`.
-- `src/utils/chat/responseGenerator.ts` was removed. Do not recreate a parallel chat or agent orchestration path.
+## Native editors and responsiveness
 
-### Chat Runtime Invariants
+[NATIVE-EDITORS.md](NATIVE-EDITORS.md) is the public v1 CodeMirror interface. Keep
+its unload behavior and suggestion-menu guard verified. Preserve the older LaTeX
+Live bridge as an existing consumer contract. Current-file paths must
+come from the actual editor, including popouts, rather than whichever pane happens
+to be globally active.
 
-- Agent conversation state is structurally shared: a message object's reference changes if and only if its content changes. Never mutate messages or state arrays in place; dev builds deep-freeze published snapshots to catch this.
-- All scroll writes in chat surfaces go through the scroll controller in `src/components/chat-view/scroll/`. Never set `scrollTop` directly.
+Use a single trailing request; never discard the final edit because of cooldown.
+Reuse suggestions only for exact anchor insertions with identical surrounding text.
+Cache only in memory, with bounded size and expiry, and scope keys to the editor,
+model, endpoint, prompt, parameters and precise context. Never case-fold math or
+normalize whitespace in cache keys. Keep callbacks from cancelled requests inert.
 
-### Popout / Multi-window
+Context reads at most a bounded lookback and preamble of the current document.
+It does not resolve includes, run a parser/compiler, fetch other notes or invoke a
+second model. Keep context fixtures for out-of-window notation and proof statements.
 
-Obsidian popouts are separate BrowserWindows. Plugin JS still runs in one realm, but each window has its own `document`, `window`, and keymap. Global `document` / `window` are the **main** window.
-
-- View-local DOM work (portals, listeners, `requestAnimationFrame`, `getComputedStyle`, `activeElement`, timers) must use the node's `ownerDocument` / `defaultView`. Use `src/utils/dom/window-context.ts`; do not default to the globals.
-- Keyboard, Escape layering, and menus belong to Obsidian's keymap: `Scope` + `app.keymap.pushScope` / `popScope`, or `Menu` / `Modal`. Do not build a parallel stack with React `onKeyDown` plus Radix/document-capture Escape. That stack only sees keys that reach a node in that document; in a popout the host often consumes the same keys at capture (and Radix's listener is usually on the main `document`), so shortcuts and Esc layering work in the main window and fail in the popout.
-- Overlay, shortcut, and portal behavior is not done until it has been checked in a popout, not only the main window.
-
-### Database Schema Changes
-
-1. Edit `src/database/schema.ts`.
-2. Run `npx drizzle-kit generate --name <migration-name>`.
-3. Review the generated files in `drizzle/`.
-4. Run `npm run migrate:compile` to update `src/database/migrations.json`.
-
-## Obsidian and Style Constraints
-
-- React event handlers that call async functions must use `void` wrappers.
-- Do not directly set `element.style.cursor` or `element.style.userSelect`; use `setCssProps`.
-- Every `eslint-disable` directive must include a reason.
-- All CSS classes must use the `yolo-` prefix. Host styles live in `src/styles/**`; module styles live with their module.
-- When styling native controls, assume Obsidian core and theme styles apply globally. Use component-scoped `element.yolo-*` selectors, explicitly reset affected properties, and use `!important` only for a confirmed host-style collision.
-- Organize host styles by responsibility as documented in `src/styles/README.md`. Before changing popovers or dropdowns, read the ownership rules in `src/styles/popover/surface.css`.
-- Never hardcode user-visible text; route it through i18n, and resolve the current locale at use time rather than caching a locale-bound translator.
-- Animate only `opacity` and `transform`, with durations and easings from `src/styles/tokens/motion.css` / `motion.ts` (paired files — keep both in sync). Animating layout properties requires an inline exemption comment.
-- CSS animations get reduced-motion handling for free from a global fallback; do not add per-component disable blocks. JS-driven animations (framer-motion / WAAPI) must degrade via `useReducedMotion`.
-
-## Verification
-
-- Host code: run `npm run type:check` and relevant tests.
-- Module code: run `npm run module:typecheck`, relevant tests, `npm --prefix modules/<id> run test:boundary` when available, and `npm run module:build`.
-- Host CSS: run `npm run styles:build`. Module CSS is rebuilt by the module build.
-- Run `npm run build` for changes that affect production bundling, module boundaries, runtime loading, or cross-platform behavior.
+Before publishing, run local checks plus the isolated editor matrix and a same-input
+latency comparison. Treat synthetic IME events and mocked provider tests as such;
+never report them as physical IME or live-provider tests. Only the isolated test
+profile may disable background timer throttling for timing measurement.
